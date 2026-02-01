@@ -1,1 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Valentine's Question</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
 
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Animated gradient background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(255, 107, 157, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(118, 75, 162, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(102, 126, 234, 0.3) 0%, transparent 50%);
+            animation: gradientShift 15s ease infinite;
+            pointer-events: none;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.1); }
+        }
+
+        /* Floating particles */
+        .particle {
+            position: fixed;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: particleFloat linear infinite;
+        }
+
+        @keyframes particleFloat {
+            0% {
+                transform: translateY(100vh) translateX(0) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) translateX(100px) scale(1);
+                opacity: 0;
+            }
+        }
+
+        .container {
+            text-align: center;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        /* Heart illustration */
+        .heart-container {
+            margin-bottom: 50px;
+            animation: fadeInScale 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes fadeInScale {
+            0% {
+                opacity: 0;
+                transform: scale(0.8) translateY(30px);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .heart-svg {
+            width: 200px;
+            height: 200px;
+            filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.3));
+            animation: heartBeat 1.5s ease-in-out infinite;
+        }
+
+        @keyframes heartBeat {
+            0%, 100% { transform: scale(1); }
+            25% { transform: scale(1.1); }
+            50% { transform: scale(1); }
+        }
+
+        .question {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 60px;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            letter-spacing: -0.5px;
+            animation: fadeInUp 0.8s ease 0.3s both;
+            line-height: 1.3;
+        }
+
+        @keyframes fadeInUp {
+            0% {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .buttons-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            animation: fadeInUp 0.8s ease 0.5s both;
+            flex-wrap: wrap;
+            padding: 20px;
+        }
+
+        .btn {
+            padding: 20px 60px;
+            font-size: 1.4rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 60px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            letter-spacing: 0.5px;
+            user-select: none;
+            -webkit-user-select: none;
+            position: relative;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:active::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        #yesBtn {
+            background: linear-gradient(135deg, #ff6b9d 0%, #ff8fab 100%);
+            color: white;
+            z-index: 10;
+        }
+
+        #yesBtn:active {
+            transform: scale(0.95);
+        }
+
+        #noBtn {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            color: white;
+            z-index: 5;
+        }
+
+        /* Success screen */
+        .success-screen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.8s ease;
+        }
+
+        .success-content {
+            text-align: center;
+            color: white;
+            padding: 40px 20px;
+            animation: successPopIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes successPopIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.5) rotate(-10deg);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) rotate(0deg);
+            }
+        }
+
+        .success-content h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #ffffff 0%, #ffd1dc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .success-content p {
+            font-size: 1.4rem;
+            margin-bottom: 40px;
+            opacity: 0.95;
+            font-weight: 300;
+        }
+
+        .success-heart {
+            width: 250px;
+            height: 250px;
+            margin: 30px auto;
+            animation: rotateIn 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            filter: drop-shadow(0 30px 60px rgba(0, 0, 0, 0.4));
+        }
+
+        @keyframes rotateIn {
+            0% {
+                opacity: 0;
+                transform: rotate(-180deg) scale(0.3);
+            }
+            100% {
+                opacity: 1;
+                transform: rotate(0deg) scale(1);
+            }
+        }
+
+        /* Music button */
+        .music-btn {
+            background: linear-gradient(135deg, #ff6b9d 0%, #c06c84 100%);
+            color: white;
+            border: none;
+            padding: 20px 45px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            border-radius: 60px;
+            cursor: pointer;
+            box-shadow: 0 10px 40px rgba(255, 107, 157, 0.4);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            margin-top: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .music-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .music-btn:active::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .music-btn:active {
+            transform: scale(0.95);
+        }
+
+        .music-btn.playing {
+            animation: musicPulse 1s ease-in-out infinite;
+        }
+
+        @keyframes musicPulse {
+            0%, 100% {
+                box-shadow: 0 10px 40px rgba(255, 107, 157, 0.4);
+            }
+            50% {
+                box-shadow: 0 10px 60px rgba(255, 107, 157, 0.8);
+            }
+        }
+
+        /* Confetti */
+        .confetti-piece {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            z-index: 999;
+            pointer-events: none;
+        }
+
+        @keyframes confettiFall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            .question { 
+                font-size: 1.8rem;
+                margin-bottom: 40px;
+            }
+            .btn { 
+                padding: 18px 50px; 
+                font-size: 1.2rem; 
+            }
+            .heart-svg {
+                width: 150px;
+                height: 150px;
+            }
+            .success-content h1 { 
+                font-size: 2.5rem; 
+            }
+            .success-heart {
+                width: 180px;
+                height: 180px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .question { 
+                font-size: 1.5rem;
+            }
+            .btn { 
+                padding: 16px 40px; 
+                font-size: 1.1rem; 
+            }
+            .heart-svg {
+                width: 120px;
+                height: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Particles container -->
+    <div id="particlesContainer"></div>
+
+    <!-- Main container -->
+    <div class="container" id="mainContainer">
+        <div class="heart-container">
+            <svg class="heart-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" 
+                      fill="url(#heartGradient)" 
+                      stroke="white" 
+                      stroke-width="1.5" 
+                      stroke-linecap="round" 
+                      stroke-linejoin="round"/>
+                <defs>
+                    <linearGradient id="heartGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#ff6b9d;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#ff8fab;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+            </svg>
+        </div>
+
+        <div class="question" id="questionText">
+            Will you be my Valentine?
+        </div>
+
+        <div class="buttons-container" id="buttonsContainer">
+            <button class="btn" id="yesBtn" onclick="handleYes()">
+                <span>Yes</span>
+            </button>
+            <button class="btn" id="noBtn">
+                <span id="noText">No</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Success screen -->
+    <div class="success-screen" id="successScreen">
+        <div class="success-content">
+            <h1>I knew it!</h1>
+            <p>You made the right choice ❤️</p>
+            <svg class="success-heart" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" 
+                      fill="url(#successHeartGradient)" 
+                      stroke="white" 
+                      stroke-width="1.5" 
+                      stroke-linecap="round" 
+                      stroke-linejoin="round"/>
+                <defs>
+                    <linearGradient id="successHeartGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#ff6b9d;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#ff8fab;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+            </svg>
+            <button class="music-btn" id="musicBtn" onclick="toggleMusic()">
+                <span id="musicBtnText">🎵 Play Our Song</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Audio element - expects song.mp3 in same folder -->
+    <audio id="audioPlayer" loop>
+        <source src="song.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        let noClickCount = 0;
+        let yesBtnScale = 1;
+        let isPlaying = false;
+        let isDragging = false;
+        const yesBtn = document.getElementById('yesBtn');
+        const noBtn = document.getElementById('noBtn');
+        const noText = document.getElementById('noText');
+        const questionText = document.getElementById('questionText');
+        const audioPlayer = document.getElementById('audioPlayer');
+        const musicBtn = document.getElementById('musicBtn');
+        const musicBtnText = document.getElementById('musicBtnText');
+
+        // 25 sarcastic questions that loop
+        const sarcasticQuestions = [
+            "Will you be my Valentine?",
+            "Pretty please? 🥺",
+            "Are you really sure about this?",
+            "Come on, just say yes!",
+            "You know you want to... 😏",
+            "I'll be really sad if you don't... 😢",
+            "Last chance to change your mind!",
+            "Seriously though?",
+            "You're breaking my heart here... 💔",
+            "Please reconsider!",
+            "What if I told you the answer is yes?",
+            "Don't make me beg... 🙏",
+            "Think of all the fun we'll have!",
+            "You're making this harder than it needs to be!",
+            "I've got chocolate... 🍫",
+            "Is that your final answer?",
+            "I won't take no for an answer!",
+            "Just click yes already!",
+            "You're being difficult on purpose, aren't you?",
+            "Fine, but you'll regret this... 😤",
+            "One more chance?",
+            "How about now?",
+            "Still no? Really?",
+            "I'm not giving up! 💪",
+            "You're going to say yes eventually..."
+        ];
+
+        // 25 no button texts that loop
+        const noButtonTexts = [
+            'No',
+            'Are you sure?',
+            'Really?',
+            'Think again',
+            'Last chance',
+            'Reconsider?',
+            'You sure?',
+            'Positive?',
+            'Absolutely?',
+            'Final answer?',
+            'Come on...',
+            'Please?',
+            'Nope?',
+            'Still no?',
+            'Seriously?',
+            'Why not?',
+            'Just no?',
+            'Maybe?',
+            'Think twice',
+            'One more time',
+            'Give up?',
+            'Never?',
+            'Not at all?',
+            'Absolutely not?',
+            'Still refusing?'
+        ];
+
+        // Create floating particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particlesContainer');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                particle.style.animationDelay = Math.random() * 5 + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        function moveNoButton() {
+            noClickCount++;
+
+            // Get button positions
+            const container = document.getElementById('buttonsContainer');
+            const containerRect = container.getBoundingClientRect();
+            const yesRect = yesBtn.getBoundingClientRect();
+            
+            // Calculate Yes button center
+            const yesCenterX = yesRect.left + yesRect.width / 2 - containerRect.left;
+            const yesCenterY = yesRect.top + yesRect.height / 2 - containerRect.top;
+
+            // Convert 1-2cm to pixels (1cm ≈ 37.8px at 96 DPI)
+            const minRadius = 37.8; // 1cm
+            const maxRadius = 75.6; // 2cm
+            
+            // Random angle (0 to 360 degrees)
+            const angle = Math.random() * 2 * Math.PI;
+            
+            // Random distance within 1-2cm radius
+            const distance = minRadius + Math.random() * (maxRadius - minRadius);
+            
+            // Calculate new position using polar coordinates
+            const offsetX = Math.cos(angle) * distance;
+            const offsetY = Math.sin(angle) * distance;
+            
+            // Apply position
+            noBtn.style.position = 'absolute';
+            noBtn.style.left = (yesCenterX + offsetX) + 'px';
+            noBtn.style.top = (yesCenterY + offsetY) + 'px';
+            noBtn.style.transform = 'translate(-50%, -50%)';
+
+            // Shrink no button but keep it visible (minimum 0.6 scale)
+            const newScale = Math.max(0.6, 1 - (noClickCount * 0.03));
+            noBtn.style.transform = `translate(-50%, -50%) scale(${newScale})`;
+
+            // Grow yes button
+            yesBtnScale = 1 + (noClickCount * 0.12);
+            yesBtn.style.transform = `scale(${yesBtnScale})`;
+
+            // Change no button text - loop through array
+            const textIndex = (noClickCount - 1) % noButtonTexts.length;
+            noText.textContent = noButtonTexts[textIndex];
+
+            // Change question text (sarcastic) - loop through array
+            const questionIndex = (noClickCount - 1) % sarcasticQuestions.length;
+            questionText.textContent = sarcasticQuestions[questionIndex];
+        }
+
+        // Mouse events for desktop
+        noBtn.addEventListener('mouseenter', (e) => {
+            e.preventDefault();
+            moveNoButton();
+        });
+
+        noBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            moveNoButton();
+        });
+
+        // Touch events for mobile
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchStartTime = 0;
+
+        noBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+            touchStartTime = Date.now();
+            isDragging = false;
+        }, { passive: false });
+
+        noBtn.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            const touchX = e.touches[0].clientX;
+            const touchY = e.touches[0].clientY;
+            const distance = Math.sqrt(
+                Math.pow(touchX - touchStartX, 2) + 
+                Math.pow(touchY - touchStartY, 2)
+            );
+            
+            // If user moves finger more than 10px, it's a drag attempt
+            if (distance > 10 && !isDragging) {
+                isDragging = true;
+                moveNoButton();
+            }
+        }, { passive: false });
+
+        noBtn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            const touchDuration = Date.now() - touchStartTime;
+            
+            // If quick tap and not already moved, move the button
+            if (touchDuration < 200 && !isDragging) {
+                moveNoButton();
+            }
+        }, { passive: false });
+
+        function handleYes() {
+            // Hide main container
+            document.getElementById('mainContainer').style.animation = 'fadeInUp 0.5s ease reverse';
+            
+            setTimeout(() => {
+                document.getElementById('mainContainer').style.display = 'none';
+                
+                // Show success screen
+                const successScreen = document.getElementById('successScreen');
+                successScreen.style.display = 'flex';
+
+                // Create confetti
+                createConfetti();
+            }, 500);
+        }
+
+        function createConfetti() {
+            const colors = [
+                '#ff6b9d', '#ff8fab', '#ffc8dd', '#ffafcc', 
+                '#bde0fe', '#a2d2ff', '#667eea', '#764ba2'
+            ];
+            
+            for (let i = 0; i < 200; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti-piece';
+                    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.top = '-10px';
+                    confetti.style.width = (Math.random() * 8 + 6) + 'px';
+                    confetti.style.height = confetti.style.width;
+                    confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+                    confetti.style.animation = `confettiFall ${Math.random() * 3 + 3}s linear forwards`;
+                    
+                    document.body.appendChild(confetti);
+                    
+                    setTimeout(() => confetti.remove(), 6000);
+                }, i * 15);
+            }
+        }
+
+        function toggleMusic() {
+            if (!isPlaying) {
+                audioPlayer.play().then(() => {
+                    isPlaying = true;
+                    musicBtnText.textContent = '⏸️ Pause Song';
+                    musicBtn.classList.add('playing');
+                }).catch((error) => {
+                    console.log('Audio playback failed:', error);
+                    musicBtnText.textContent = '❌ Audio file not found';
+                    setTimeout(() => {
+                        musicBtnText.textContent = '🎵 Play Our Song';
+                    }, 2000);
+                });
+            } else {
+                audioPlayer.pause();
+                isPlaying = false;
+                musicBtnText.textContent = '🎵 Play Our Song';
+                musicBtn.classList.remove('playing');
+            }
+        }
+
+        // Initialize
+        createParticles();
+    </script>
+</body>
+</html>
